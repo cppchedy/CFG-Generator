@@ -28,8 +28,6 @@ outside.
 you can see a complete example in **example** folder.
 
 
-## Contribution
-
 ### Steps of the decompostion
 
 first a Post request is performed to CE in order to retreave the assembly ouput of the code source.
@@ -45,6 +43,7 @@ when the response is received, the following steps are performed using the json 
   Note: remember, the ouput here is  an array of nodes and edges for each function not a single set of nodes and edges.<br>
 4) select one of the sets of nodes and edges to display.
 
+<br>
 
 the decompostion of the JSON array .asm(from CE response) is virtual(it's real only for the first step), and by virtual I mean
 that given an array x(containing asm instruction) we define for each region(function, basic block, canonical basic block) a range(first, last).
@@ -84,6 +83,6 @@ split_to_basic_blocks(asmArr, range(denote the begin and the end of **one** func
 ```
 
 
-
+## Contribution
 
 
