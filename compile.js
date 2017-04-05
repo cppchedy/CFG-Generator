@@ -1,8 +1,15 @@
-function compile(cppSourceCode, compilerId, displayBlockId) {
-    xmlhttp = new XMLHttpRequest();
-    var url = "https://gcc.godbolt.org/api/compiler/g62/compile";
 
-    var req = {"source":"auto f = [](auto x) { return x;};\n\ndouble foo(double x)\n{\n  double ui = 14.0 + x;\n  return f(13) + x;\n}\nint def(int y)\n{\n  float xx = 9.7f;\n  ++xx;\n  ++y;\n  int x =0;\n  if((x = y) == -1)\n  {\n    return x;\n  } \n  else return x+y*xx;\n}\n\n","options":"-O3 -std=c++14","filters":{"labels":true,"directives":true,"commentOnly":true,"intel":true}};
+//"auto f = [](auto x) { return x;};\n\ndouble foo(double x)\n{\n  double ui = 14.0 + x;\n  return f(13) + x;\n}\nint def(int y)\n{\n  float xx = 9.7f;\n  ++xx;\n  ++y;\n  int x =0;\n  if((x = y) == -1)\n  {\n    return x;\n  } \n  else return x+y*xx;\n}\n\n"
+
+//"-O3 -std=c++14"
+function compile(cppSourceCode, compilerId, compilerOpts, displayBlockId) {
+    xmlhttp = new XMLHttpRequest();
+    var url = "https://gcc.godbolt.org/api/compiler/" +compilerId+"/compile";
+
+    var req = {"source":cppSourceCode,
+               "options":compilerOpts,
+               "filters":{"labels":true,"directives":true,"commentOnly":true,"intel":true}};
+
     var tmp = JSON.stringify(req);
     xmlhttp.open('POST', url, true);
     xmlhttp.onreadystatechange = function () {
@@ -93,7 +100,7 @@ function compile(cppSourceCode, compilerId, displayBlockId) {
 
             var edges  = new vis.DataSet(functions_edges[1]);
             var nodes_ = new vis.DataSet(functions_nodes[1]);
-            var container = document.getElementById('mynetwork');
+            var container = document.getElementById(displayBlockId);
             var data = {'nodes': nodes_, 'edges': edges}
             var gph = new vis.Network(container, data, opts);
 

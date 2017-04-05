@@ -326,11 +326,6 @@ function show(arr, range) {
 
 
 
-//look here
-compile("dummy", "g63");
-
-
-
 
 
 
