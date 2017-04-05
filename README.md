@@ -37,12 +37,12 @@ when the response is received, the following steps are performed using the json 
 
 1) separate code(assembly instructions) from Data.
 2) seprate functions(identify begin and end of each function).
-3) for each function :
-   a) decompose into basic blocks.
-   b) decompose each basic block  into canonical basic blocks.
-   c) make nodes from canonical basic blocks.
-   d) make edges from canonical basic blocks.
-  Note: remember, the ouput here is  an array of nodes and edges for each function not a single set of nodes and edges.
+3) for each function :<br>
+   a) decompose into basic blocks.<br>
+   b) decompose each basic block  into canonical basic blocks.<br>
+   c) make nodes from canonical basic blocks.<br>
+   d) make edges from canonical basic blocks.<br>
+  Note: remember, the ouput here is  an array of nodes and edges for each function not a single set of nodes and edges.<br>
 4) select one of the sets of nodes and edges to display.
 
 
