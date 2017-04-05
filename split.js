@@ -1,8 +1,8 @@
 /*
   @matt
-  the code in "compile" function demonstarte how to use the following functions(split_to_functions, basic_block_splitter,
+  the code in "compile" function demonstarte how to use the following functions(splitToFunctions, basic_block_splitter,
   ...) to generate a control flow graph for gcc(and for x86).
-  all the following function are highly customizable(only seperate_code_from_data is not) for other compiler,
+  all the following function are highly customizable(only seperateCodeFromData is not) for other compiler,
   you can extend the interface of compile function to compile(soucecode, compilerId, indicators),
   indicator = { function_end_indicator: function(...) { ...},
                 basic_block_end_indicator: function(...) { ...},
@@ -82,8 +82,8 @@
 //this funciton not portable for other compiler, clang associates data with the function that use id but gcc group all the data
 // separetely from the function: (func1:....,func2:....,.LC1:...,)
 //for clang you need to do a (std::)stable partition and bring all the functions in front before
-//applying "seperate_code_from_data"
-function seperate_code_from_data(asmArr) {
+//applying "seperateCodeFromData"
+function seperateCodeFromData(asmArr) {
     is_label_for_data = function(entry) {
         return ((entry[0] != ".")
                 ||  (entry.includes(".LC") == false));
@@ -102,7 +102,7 @@ function seperate_code_from_data(asmArr) {
 
 //precondition: asmArr contain the name of the function @pos 1 and
 // at least the array contain one instruction .
-function split_to_functions(asmArr, is_end) {
+function splitToFunctions(asmArr, is_end) {
     if(asmArr.length == 0)   return [];
     var result = [];
     var first = 0;

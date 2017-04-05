@@ -16,8 +16,8 @@ function compile(cppSourceCode, compilerId, compilerOpts, displayBlockId) {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
             var resp = JSON.parse(xmlhttp.response);
             console.log(resp);
-            var code = seperate_code_from_data(resp.asm);
-            var funcs = split_to_functions(code,
+            var code = seperateCodeFromData(resp.asm);
+            var funcs = splitToFunctions(code,
                                           function(x)  { return ((x[0] != ' ') && (x[0] != '.')
                                                                  && (x.indexOf(':') != -1)) ;});
 

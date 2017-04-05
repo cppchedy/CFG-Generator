@@ -21,7 +21,7 @@ it displays the control flow graph as inputs and perform decompostion on assembl
     var div_id = "some_id";
 
     compile(codesource, compId, obj, div_id);
-``'
+```
 Note: right now, the decompostion and the display are handled inside compile, maybe later the display part will be handled
 outside.
 
