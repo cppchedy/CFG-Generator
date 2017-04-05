@@ -12,7 +12,7 @@ The library exposes the function "compile" to the client. This function encapsul
 decomposition of the response into connected basic blocks.
 
 the function **compile** take the source code, the compilerId, an obj(explained later) and the id of the block in which
-it displays the control flow graphas as inputs and perform decompistion on the assembly code.
+it displays the control flow graph as inputs and perform decompostion on assembly code.
 
 ```JS
     var codesource = "int main() { return 0;}";
@@ -21,14 +21,14 @@ it displays the control flow graphas as inputs and perform decompistion on the a
     var div_id = "some_id";
 
     compile(codesource, compId, obj, div_id);
-```
-Note: right now, the decompostion and the display are handled inside compile; maybe later the display part will be handled
+``'
+Note: right now, the decompostion and the display are handled inside compile, maybe later the display part will be handled
 outside.
 
 you can see a complete example in **example** folder.
 
 
-### Steps of the decompostion
+## Steps of the decompostion ##
 
 first a Post request is performed to CE in order to retreave the assembly ouput of the code source.
 when the response is received, the following steps are performed using the json object:
@@ -66,7 +66,7 @@ canonical basic blocks:
 
 
 
-### Design  ###
+## Design  ##
 
 even though the example in **example folder** work only for gcc and x86 architecture specifically, CFG generator APIs are
 designed to be scalable/customizable to different compilers and architectures. This is achieved through defering all regions
@@ -83,6 +83,8 @@ split_to_basic_blocks(asmArr, range(denote the begin and the end of **one** func
 ```
 
 
-## Contribution
+## Contribution ##
+
+
 
 
