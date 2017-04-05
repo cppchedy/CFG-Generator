@@ -17,7 +17,7 @@ function compile(cppSourceCode, compilerId, compilerOpts, displayBlockId) {
             var resp = JSON.parse(xmlhttp.response);
             console.log(resp);
             var code = seperate_code_from_data(resp.asm);
-            var funcs = function_splitter(code,
+            var funcs = split_to_functions(code,
                                           function(x)  { return ((x[0] != ' ') && (x[0] != '.')
                                                                  && (x.indexOf(':') != -1)) ;});
 

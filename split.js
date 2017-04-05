@@ -1,6 +1,6 @@
 /*
   @matt
-  the code in "compile" function demonstarte how to use the following functions(function_splitter, basic_block_splitter,
+  the code in "compile" function demonstarte how to use the following functions(split_to_functions, basic_block_splitter,
   ...) to generate a control flow graph for gcc(and for x86).
   all the following function are highly customizable(only seperate_code_from_data is not) for other compiler,
   you can extend the interface of compile function to compile(soucecode, compilerId, indicators),
@@ -102,7 +102,7 @@ function seperate_code_from_data(asmArr) {
 
 //precondition: asmArr contain the name of the function @pos 1 and
 // at least the array contain one instruction .
-function function_splitter(asmArr, is_end) {
+function split_to_functions(asmArr, is_end) {
     if(asmArr.length == 0)   return [];
     var result = [];
     var first = 0;
