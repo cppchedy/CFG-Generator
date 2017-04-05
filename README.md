@@ -15,14 +15,12 @@ the function **compile** take the source code, the compilerId, an obj(explained 
 it displays the control flow graphas as inputs and perform decompistion on the assembly code.
 
 ```JS
-{
-    var codesource = "int main() { return 0;}
+    var codesource = "int main() { return 0;}";
     var compId = "g63";
     var obj = { ... };// content and role explained later in Design.
     var div_id = "some_id";
 
     compile(codesource, compId, obj, div_id);
-}
 ```
 Note: right now, the decompostion and the display are handled inside compile; maybe later the display part will be handled
 outside.
