@@ -79,8 +79,9 @@ each Obj field is a function that determine if a particular condition is meat or
 split_to_basic_blocks function. it accepts as a third parameter a function that identify  the end of a basic block. and this
 function need to leave in one of Obj fields.
 
+```JS
 split_to_basic_blocks(asmArr, range(denote the begin and the end of **one** function), Obj.is_end_of_basic_block).
-
+```
 
 
 
