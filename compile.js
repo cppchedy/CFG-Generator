@@ -2,7 +2,32 @@
 //"auto f = [](auto x) { return x;};\n\ndouble foo(double x)\n{\n  double ui = 14.0 + x;\n  return f(13) + x;\n}\nint def(int y)\n{\n  float xx = 9.7f;\n  ++xx;\n  ++y;\n  int x =0;\n  if((x = y) == -1)\n  {\n    return x;\n  } \n  else return x+y*xx;\n}\n\n"
 
 //"-O3 -std=c++14"
-function compile(cppSourceCode, compilerId, compilerOpts, displayBlockId) {
+
+var gccX86 = {
+                filterData:  seperateCodeFromData,
+                isFunctionEnd:function(x)  { return ((x[0] != ' ') && (x[0] != '.')
+                                                            && (x.indexOf(':') != -1)) ;},
+
+                isBasicBlockEnd: function(x) { return x[0] == ".";} ,
+
+                getInstructionType:function(inst) {
+                                            inst = inst.trim();
+                                            if(inst.includes("jmp")) return 0;
+                                            else if(inst[0] == 'j') return 1;
+                                            else if(!inst.includes("ret")) return 2;
+                                            else return 3;
+                                          },
+
+                extractNodeName:function(inst) {
+                                     var name = inst.match(/.L\d+/);
+                                     return name + ":";
+                                  },
+
+                isJmpInstruction: function(x) { var trimed = x.trim(); return ( trimed[0] == 'j');}
+             };
+
+
+function compile(cppSourceCode, compilerId, compilerOpts, displayBlockId, rules) {
     xmlhttp = new XMLHttpRequest();
     var url = "https://gcc.godbolt.org/api/compiler/" +compilerId+"/compile";
 
@@ -15,58 +40,30 @@ function compile(cppSourceCode, compilerId, compilerOpts, displayBlockId) {
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
             var resp = JSON.parse(xmlhttp.response);
-            console.log(resp);
-            var code = seperateCodeFromData(resp.asm);
-            var funcs = splitToFunctions(code,
-                                          function(x)  { return ((x[0] != ' ') && (x[0] != '.')
-                                                                 && (x.indexOf(':') != -1)) ;});
 
-            if (funcs.length == 0 ) { console.log("no functions in code"); return ;}
+            var code = rules.filterData(resp.asm);
+            var funcs = splitToFunctions(code, rules.isFunctionEnd);
 
-            console.log("functions ranges:")
-            for(let elm of funcs)
-                show(code, elm);
+            if (funcs.length == 0 ) { console.log("no functions in code"); return ;};
 
             var functions_nodes = [];
             var functions_edges = [];
 
             for(let rng of funcs) {
-                var  basic_blocks = basic_block_splitter(code, rng,
-                                     function(x) { return x[0] == ".";},
-                                     function(x) { var trimed = x.trim(); return ( trimed[0] == 'j');});
-                console.log("basic blocks ranges");
-                for(let elm of basic_blocks)
-                    show(code, elm);
+                var  basic_blocks = splitToBasicBlocks(code, rng, rules.isBasicBlockEnd,
+                                                                  rules.isJmpInstruction);
 
                 var arrOfCanonicalBasicBlock = [];
 
                 for(let elm of basic_blocks) {
-                    var tmp = explose_basic_block(code, elm);
+                    var tmp = exploseBasicBlock(code, elm);
                     arrOfCanonicalBasicBlock = arrOfCanonicalBasicBlock.concat(tmp);
                 }
 
-                console.log("canonical basic blocks ranges");
-                for(let elm of arrOfCanonicalBasicBlock)
-                    show(code, elm);
-
-                var instruction_type = function(inst) {
-                    inst = inst.trim();
-                    if(inst.includes("jmp")) return 0;
-                    else if(inst[0] == 'j') return 1;
-                    else if(!inst.includes("ret")) return 2;
-                    else return 3;
-                }
-
-                //expect .L* in instruction
-                var extract_node_name_from_instruction = function(inst) {
-                    var name = inst.match(/.L\d+/);
-                    return name + ":";
-                }
-
-                functions_nodes.push(make_nodes(code, arrOfCanonicalBasicBlock));
-                functions_edges.push(make_edges(code, arrOfCanonicalBasicBlock,
-                                                instruction_type,
-                                                extract_node_name_from_instruction));
+                functions_nodes.push(makeNodes(code, arrOfCanonicalBasicBlock));
+                functions_edges.push(makeEdges(code, arrOfCanonicalBasicBlock,
+                                                rules.getInstructionType,
+                                                rules.extractNodeName));
                 console.log(functions_edges);
                 console.log(functions_nodes);
 

@@ -21,7 +21,7 @@
 var codeSrc = "auto f = [](auto x) { return x;};\n\ndouble foo(double x)\n{\n  double ui = 14.0 + x;\n  return f(13) + x;\n}\nint def(int y)\n{\n  float xx = 9.7f;\n  ++xx;\n  ++y;\n  int x =0;\n  if((x = y) == -1)\n  {\n    return x;\n  } \n  else return x+y*xx;\n}\n\n";
 var compOpts = "-O3 -std=c++14";
 
-compile(codeSrc, "g63",compOpts, "mynetwork");
+compile(codeSrc, "g63",compOpts, "mynetwork", gccX86);
 
 </script>
 </body>

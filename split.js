@@ -1,6 +1,6 @@
 /*
   @matt
-  the code in "compile" function demonstarte how to use the following functions(splitToFunctions, basic_block_splitter,
+  the code in "compile" function demonstarte how to use the following functions(splitToFunctions, splitToBasicBlocks,
   ...) to generate a control flow graph for gcc(and for x86).
   all the following function are highly customizable(only seperateCodeFromData is not) for other compiler,
   you can extend the interface of compile function to compile(soucecode, compilerId, indicators),
@@ -54,7 +54,7 @@
                              <--- end of cbb3
 
 
-          the function explose_basic_block take one basic block and partition it according to jmp instruction,
+          the function exploseBasicBlock take one basic block and partition it according to jmp instruction,
           for example let say we have a basic block like so:
 
                    inst1
@@ -70,7 +70,7 @@
 
         an important note here: in inst5: the following "instruction" is ".L*:" or it's the final instruction
         in the current function, simply because we divide basic block using ".L*:" and as we said we pass one of them
-        for explose_basic_block.
+        for exploseBasicBlock.
 
         note: further when get to link between nodes with edges, in this particular situation(example above)
         inst5 can be a ret instruction or any other instruction, if it's a ret we don't link with the next block
@@ -79,8 +79,8 @@
 */
 
 
-//this funciton not portable for other compiler, clang associates data with the function that use id but gcc group all the data
-// separetely from the function: (func1:....,func2:....,.LC1:...,)
+//this funciton not portable for other compiler, clang associates(put just above or below) data with the function that use
+//it but gcc group all the data separetely from the function: (func1:....,func2:....,.LC1:...,)
 //for clang you need to do a (std::)stable partition and bring all the functions in front before
 //applying "seperateCodeFromData"
 function seperateCodeFromData(asmArr) {
@@ -123,12 +123,12 @@ function splitToFunctions(asmArr, is_end) {
     return result;
 }
 
-//has_action: detect is there is jmps (not rets because: if a current inst is a ret you have either the next inst is .L*:
+//isJmp: detect is there is jmps (not rets because: if a current inst is a ret you have either the next inst is .L*:
 //            or you have no more instructions for the current function).
 //is_end: stops at .L*: things
 
 //returns an array of ranges of basic blocks.
-function basic_block_splitter(asmArr,  range, is_end, has_action) {
+function splitToBasicBlocks(asmArr,  range, is_end, isJmp) {
     var first = range["start"];
     var last = range["end"];
     if(first == last) return [];
@@ -139,7 +139,7 @@ function basic_block_splitter(asmArr,  range, is_end, has_action) {
 
     var reset_range_with = function(range_bb,  name_id, start) {
             range_bb["name_id"] = name_id;//.L1:
-            range_bb["start"] = start;//after .L1
+            range_bb["start"] = start;//after .L1:
             range_bb["action_pos"] = [];
     }
 
@@ -152,7 +152,7 @@ function basic_block_splitter(asmArr,  range, is_end, has_action) {
             //inst is expected to be .L*: where * in 1,2,...
             reset_range_with(range_bb, inst, first);
         }
-        else if(has_action(inst)) {
+        else if(isJmp(inst)) {
                 range_bb["action_pos"].push(first);
         }
         ++first
@@ -166,15 +166,15 @@ function basic_block_splitter(asmArr,  range, is_end, has_action) {
 //asmArr: CE asm arr.
 //basic block exp:  {name_id:"start" , start:first , end:null, action_pos:[]}
 //return array of ranges: [{name_id:"start" , start:first , end:last},...]
-function explose_basic_block(asmArr,  basic_block) {
+function exploseBasicBlock(asmArr,  basic_block) {
     var action_pos = basic_block["action_pos"];
 
     if(action_pos.length == 0)
         return [{
-                                          name_id: basic_block.name_id,
-                                          start: basic_block.start,
-                                          end: basic_block.end
-                                      }];
+                    name_id: basic_block.name_id,
+                    start: basic_block.start,
+                    end: basic_block.end
+               }];
     else if(action_pos.length == 1)
             return [
                 {name_id: basic_block.name_id,start: basic_block.start,end:action_pos[0]+1},
@@ -204,17 +204,17 @@ function explose_basic_block(asmArr,  basic_block) {
 
 
 
-function concat_instructions(asmArr, first, last) {
+function concatInstructions(asmArr, first, last) {
     if(first == last) return "";//if last -1 is changed to last this line is no longuer needed
     console.log("look");
     var result = "";
     while(first != last-1) {//added to delete last \n and handle the last concat outside loop
         console.log(asmArr[first].text);
-        result += asmArr[first].text.trim() + "\n";
+        result += asmArr[first].text + "\n";
         ++first;
     }
     //last concat withou \n
-    result += asmArr[first].text.trim();
+    result += asmArr[first].text;
     console.log(asmArr[first].text);
 
     return result;
@@ -223,7 +223,7 @@ function concat_instructions(asmArr, first, last) {
 
 //asmArr: CE json assembly instruction array.
 //arrOfCanonicalBasicBlock: [{name_id:, start:, end:},....]
-function make_nodes(asmArr, arrOfCanonicalBasicBlock) {
+function makeNodes(asmArr, arrOfCanonicalBasicBlock) {
 
     var node = {};
     var nodes = [];
@@ -231,7 +231,8 @@ function make_nodes(asmArr, arrOfCanonicalBasicBlock) {
         console.log("node name:")
         console.log(x.name_id);
         node["id"] = x.name_id;
-        node["label"] = concat_instructions(asmArr,x.start, x.end);
+        node["label"] = x.name_id + ((x.name_id.indexOf(":") != -1)? "":":") +"\n"
+                        + concatInstructions(asmArr,x.start, x.end);
         node["color"] = "#FFAFAF";
         node["shape"] = 'box';
         nodes.push(JSON.parse(JSON.stringify(node)));
@@ -242,7 +243,7 @@ function make_nodes(asmArr, arrOfCanonicalBasicBlock) {
 //arrOfCanonicalBasicBlock: [{name_id:, start:, end:},....]
 
 //instrruction type requirement: first, check  if it's a jmp, after that check for conditional jmp,
-function make_edges(asmArr, arrOfCanonicalBasicBlock, instruction_type, extract_node_name_from_instruction) {
+function makeEdges(asmArr, arrOfCanonicalBasicBlock, instruction_type, extract_node_name_from_instruction) {
 
     var jmp_inst = 0;
     var conditional_jmp_inst = 1;
